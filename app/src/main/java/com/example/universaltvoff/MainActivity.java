@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
                     if (pattern != null) {
                         ir.transmit(carrierFor(code.p), pattern);
                         sent++;
-                        pause(28);
+                        pause(3);
                     }
                 }
                 result = sent + " TV güç profili gönderildi.";
