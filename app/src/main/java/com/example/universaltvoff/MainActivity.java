@@ -24,28 +24,38 @@ public class MainActivity extends Activity {
     }
 
     private void sendPowerSweep() {
-        if (ir == null || !ir.hasIrEmitter()) {
+        boolean hasEmitter = false;
+        try {
+            hasEmitter = ir != null && ir.hasIrEmitter();
+        } catch (Throwable ignored) {
+            hasEmitter = false;
+        }
+        if (!hasEmitter) {
             status.setText("Bu telefonda IR verici bulunamadı.");
             return;
         }
         button.setEnabled(false);
         status.setText("Güç kodları gönderiliyor...");
         new Thread(() -> {
-            // NEC family: common TV device addresses and power command variants.
-            int[] addresses = {0x00, 0x04, 0x07, 0x08, 0x10, 0x20, 0x40, 0x80};
-            int[] commands = {0x02, 0x08, 0x0C, 0x0D, 0x12, 0x40, 0x46, 0x47, 0x4C, 0x5A};
-            for (int address : addresses) for (int command : commands) {
-                ir.transmit(38000, nec(address, command));
-                pause(35);
+            String result = "Komutlar gönderildi.";
+            try {
+                // NEC family: common TV device addresses and power command variants.
+                int[] addresses = {0x00, 0x04, 0x07, 0x08, 0x10, 0x20, 0x40, 0x80};
+                int[] commands = {0x02, 0x08, 0x0C, 0x0D, 0x12, 0x40, 0x46, 0x47, 0x4C, 0x5A};
+                for (int address : addresses) for (int command : commands) {
+                    ir.transmit(38000, nec(address, command));
+                    pause(35);
+                }
+                ir.transmit(40000, sony12(0x15, 1));
+                pause(50);
+                ir.transmit(36000, rc5(0, 0x0C));
+            } catch (Throwable error) {
+                result = "IR gönderimi desteklenmiyor: " + error.getClass().getSimpleName();
             }
-            // Sony SIRC 12-bit (many Sony TVs use command 0x15 / address 1).
-            ir.transmit(40000, sony12(0x15, 1));
-            pause(50);
-            // RC5 power command, a common Philips-compatible form.
-            ir.transmit(36000, rc5(0, 0x0C));
+            String finalResult = result;
             runOnUiThread(() -> {
                 button.setEnabled(true);
-                status.setText("Komutlar gönderildi. Tepki yoksa telefonu TV sensörüne doğrultun.");
+                status.setText(finalResult);
             });
         }).start();
     }
