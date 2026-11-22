@@ -39,16 +39,16 @@ public class MainActivity extends Activity {
         new Thread(() -> {
             String result = "Komutlar gönderildi.";
             try {
-                // NEC family: common TV device addresses and power command variants.
-                int[] addresses = {0x00, 0x04, 0x07, 0x08, 0x10, 0x20, 0x40, 0x80};
-                int[] commands = {0x02, 0x08, 0x0C, 0x0D, 0x12, 0x40, 0x46, 0x47, 0x4C, 0x5A};
-                for (int address : addresses) for (int command : commands) {
-                    ir.transmit(38000, nec(address, command));
-                    pause(35);
+                int sent = 0;
+                for (IrDatabase.Code code : IrDatabase.POWER) {
+                    int[] pattern = patternFor(code);
+                    if (pattern != null) {
+                        ir.transmit(carrierFor(code.p), pattern);
+                        sent++;
+                        pause(28);
+                    }
                 }
-                ir.transmit(40000, sony12(0x15, 1));
-                pause(50);
-                ir.transmit(36000, rc5(0, 0x0C));
+                result = sent + " TV güç profili gönderildi.";
             } catch (Throwable error) {
                 result = "IR gönderimi desteklenmiyor: " + error.getClass().getSimpleName();
             }
@@ -58,6 +58,23 @@ public class MainActivity extends Activity {
                 status.setText(finalResult);
             });
         }).start();
+    }
+
+    private int carrierFor(String protocol) {
+        return protocol.startsWith("SIRC") ? 40000 : protocol.startsWith("RC") ? 36000 : 38000;
+    }
+
+    private int[] patternFor(IrDatabase.Code code) {
+        switch (code.p) {
+            case "NEC": return nec(code.a & 255, code.c & 255);
+            case "NECext": return necExt(code.a, code.c & 255);
+            case "Samsung32": return samsung32(code.a, code.c);
+            case "RC5": return rc5(code.a, code.c);
+            case "SIRC": return sony12(code.c & 127, code.a & 31);
+            case "SIRC15": return sony15(code.c & 127, code.a & 255);
+            case "SIRC20": return sony20(code.c & 127, code.a & 255);
+            default: return null;
+        }
     }
 
     private void pause(long ms) {
@@ -73,6 +90,34 @@ public class MainActivity extends Activity {
         }
         p[i] = 560;
         return p;
+    }
+
+    private int[] necExt(int address, int command) {
+        int[] p = new int[67]; int i = 0;
+        p[i++] = 9000; p[i++] = 4500;
+        int data = (address & 0xffff) | ((command & 255) << 16) | ((command ^ 255) << 24);
+        for (int bit = 0; bit < 32; bit++) { p[i++] = 560; p[i++] = (data & (1 << bit)) != 0 ? 1690 : 560; }
+        p[i] = 560; return p;
+    }
+
+    private int[] samsung32(int address, int command) {
+        return nec(address & 255, command & 255);
+    }
+
+    private int[] sony15(int command, int device) {
+        return sonyGeneric(command, device, 15);
+    }
+
+    private int[] sony20(int command, int device) {
+        return sonyGeneric(command, device, 20);
+    }
+
+    private int[] sonyGeneric(int command, int device, int bits) {
+        int[] p = new int[2 + bits * 2 + 1]; int i = 0;
+        p[i++] = 2400; p[i++] = 600;
+        int data = (command & 127) | ((device & 255) << 7);
+        for (int bit = 0; bit < bits; bit++) { p[i++] = 600; p[i++] = (data & (1 << bit)) != 0 ? 1200 : 600; }
+        p[i] = 600; return p;
     }
 
     private int[] sony12(int command, int device) {
