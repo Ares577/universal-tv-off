@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center" android:padding="28dp">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TV KAPAT" android:textStyle="bold" android:textSize="28sp" android:textColor="#222222" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="IR vericiyle yaygın TV güç kodlarını dener" android:textSize="15sp" />
+    <Button android:id="@+id/offButton" android:layout_width="220dp" android:layout_height="220dp" android:layout_marginTop="36dp" android:text="KAPAT" android:textSize="25sp" android:textStyle="bold" />
+    <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:gravity="center" android:text="Hazır" android:textSize="16sp" />
+</LinearLayout>
