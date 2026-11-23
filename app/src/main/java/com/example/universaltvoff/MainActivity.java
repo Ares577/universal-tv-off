@@ -4,15 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.hardware.ConsumerIrManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.widget.Button;
-import android.widget.TextView;
 
 public class MainActivity extends Activity {
     private ConsumerIrManager ir;
-    private TextView status;
-    private Button button;
-    private final Handler handler = new Handler();
+    private VantaRemoteView vanta;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -23,11 +18,9 @@ public class MainActivity extends Activity {
                 android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                 android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
                 android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-        setContentView(R.layout.activity_main);
-        status = findViewById(R.id.status);
-        button = findViewById(R.id.offButton);
+        vanta = new VantaRemoteView(this, this::sendPowerSweep);
+        setContentView(vanta);
         ir = (ConsumerIrManager) getSystemService(Context.CONSUMER_IR_SERVICE);
-        button.setOnClickListener(v -> sendPowerSweep());
     }
 
     private void sendPowerSweep() {
@@ -38,11 +31,10 @@ public class MainActivity extends Activity {
             hasEmitter = false;
         }
         if (!hasEmitter) {
-            status.setText("Bu telefonda IR verici bulunamadı.");
+            vanta.setStatus("IR verici bulunamadı.");
             return;
         }
-        button.setEnabled(false);
-        status.setText("Güç kodları gönderiliyor...");
+        vanta.setBusy(true);
         new Thread(() -> {
             String result = "Komutlar gönderildi.";
             try {
@@ -50,7 +42,6 @@ public class MainActivity extends Activity {
                 for (IrDatabase.Code code : IrDatabase.POWER) {
                     int[] pattern = patternFor(code);
                     if (pattern != null) {
-                        ir.transmit(carrierFor(code.p), pattern);
                         ir.transmit(carrierFor(code.p), pattern);
                         sent++;
                         pause(2);
@@ -62,8 +53,8 @@ public class MainActivity extends Activity {
             }
             String finalResult = result;
             runOnUiThread(() -> {
-                button.setEnabled(true);
-                status.setText(finalResult);
+                vanta.setBusy(false);
+                vanta.setStatus(finalResult);
             });
         }).start();
     }
