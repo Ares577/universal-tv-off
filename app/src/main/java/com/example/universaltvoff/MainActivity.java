@@ -16,6 +16,13 @@ public class MainActivity extends Activity {
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().getDecorView().setSystemUiVisibility(
+                android.view.View.SYSTEM_UI_FLAG_FULLSCREEN |
+                android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         setContentView(R.layout.activity_main);
         status = findViewById(R.id.status);
         button = findViewById(R.id.offButton);
@@ -44,8 +51,9 @@ public class MainActivity extends Activity {
                     int[] pattern = patternFor(code);
                     if (pattern != null) {
                         ir.transmit(carrierFor(code.p), pattern);
+                        ir.transmit(carrierFor(code.p), pattern);
                         sent++;
-                        pause(3);
+                        pause(2);
                     }
                 }
                 result = sent + " TV güç profili gönderildi.";
