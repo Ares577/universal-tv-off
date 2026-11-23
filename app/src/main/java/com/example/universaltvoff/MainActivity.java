@@ -8,6 +8,10 @@ import android.os.Bundle;
 public class MainActivity extends Activity {
     private ConsumerIrManager ir;
     private VantaRemoteView vanta;
+    private volatile boolean stopRequested;
+    private volatile boolean paused;
+    private volatile int nextIndex;
+    private Thread worker;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -18,12 +22,18 @@ public class MainActivity extends Activity {
                 android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                 android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
                 android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-        vanta = new VantaRemoteView(this, this::sendPowerSweep);
+        vanta = new VantaRemoteView(this, this::sendPowerSweep, this::stopSweep,
+                this::pauseSweep, this::restartSweep);
         setContentView(vanta);
         ir = (ConsumerIrManager) getSystemService(Context.CONSUMER_IR_SERVICE);
     }
 
     private void sendPowerSweep() {
+        if (worker != null && worker.isAlive()) return;
+        startSweep(false);
+    }
+
+    private void startSweep(boolean restart) {
         boolean hasEmitter = false;
         try {
             hasEmitter = ir != null && ir.hasIrEmitter();
@@ -34,20 +44,29 @@ public class MainActivity extends Activity {
             vanta.setStatus("IR verici bulunamadı.");
             return;
         }
+        if (restart) nextIndex = 0;
+        stopRequested = false;
+        paused = false;
         vanta.setBusy(true);
-        new Thread(() -> {
+        worker = new Thread(() -> {
             String result = "Komutlar gönderildi.";
             try {
                 int sent = 0;
-                for (IrDatabase.Code code : IrDatabase.POWER) {
+                for (int i = nextIndex; i < IrDatabase.POWER.length; i++) {
+                    while (paused && !stopRequested) pause(50);
+                    if (stopRequested) { result = "Gönderim durduruldu."; break; }
+                    nextIndex = i;
+                    IrDatabase.Code code = IrDatabase.POWER[i];
                     int[] pattern = patternFor(code);
                     if (pattern != null) {
                         ir.transmit(carrierFor(code.p), pattern);
                         sent++;
-                        pause(2);
+                        nextIndex = i + 1;
+                        pause(3);
                     }
                 }
-                result = sent + " TV güç profili gönderildi.";
+                if (!stopRequested && nextIndex >= IrDatabase.POWER.length)
+                    result = sent + " TV güç profili gönderildi.";
             } catch (Throwable error) {
                 result = "IR gönderimi desteklenmiyor: " + error.getClass().getSimpleName();
             }
@@ -56,7 +75,28 @@ public class MainActivity extends Activity {
                 vanta.setBusy(false);
                 vanta.setStatus(finalResult);
             });
-        }).start();
+        });
+        worker.start();
+    }
+
+    private void stopSweep() {
+        stopRequested = true;
+        paused = false;
+        vanta.setStatus("Gönderim durduruluyor...");
+    }
+
+    private void pauseSweep() {
+        if (worker != null && worker.isAlive()) {
+            paused = true;
+            vanta.setStatus("Duraklatıldı.");
+        }
+    }
+
+    private void restartSweep() {
+        stopRequested = true;
+        paused = false;
+        nextIndex = 0;
+        if (worker == null || !worker.isAlive()) startSweep(true);
     }
 
     private int carrierFor(String protocol) {
