@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center" android:padding="28dp">
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TV KAPAT" android:textStyle="bold" android:textSize="28sp" android:textColor="#222222" />
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="IR vericiyle yaygın TV güç kodlarını dener" android:textSize="15sp" />
-    <Button android:id="@+id/offButton" android:layout_width="220dp" android:layout_height="220dp" android:layout_marginTop="36dp" android:text="KAPAT" android:textSize="25sp" android:textStyle="bold" />
-    <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:gravity="center" android:text="Hazır" android:textSize="16sp" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/surface" android:padding="24dp">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="KUMANDA" android:textColor="@color/accent" android:textStyle="bold" android:textSize="13sp" android:letterSpacing="0.16" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="TV Kapat" android:textColor="@color/ink" android:textStyle="bold" android:textSize="34sp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Yakındaki TV’ler için güç komutunu gönder." android:textColor="@color/muted" android:textSize="16sp" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:padding="18dp" android:orientation="vertical" android:background="@color/panel">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DURUM" android:textColor="@color/muted" android:textStyle="bold" android:textSize="12sp" />
+        <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Hazır" android:textColor="@color/ink" android:textSize="17sp" />
+    </LinearLayout>
+    <Space android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+    <Button android:id="@+id/offButton" android:layout_width="match_parent" android:layout_height="64dp" android:background="@drawable/button_off" android:text="TV’Yİ KAPAT" android:textColor="@color/ink" android:textSize="17sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center" android:text="IR blaster • 301 profil • tek gönderim" android:textColor="@color/muted" android:textSize="12sp" />
 </LinearLayout>
