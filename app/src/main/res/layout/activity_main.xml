@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/surface" android:padding="24dp">
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="KUMANDA" android:textColor="@color/accent" android:textStyle="bold" android:textSize="13sp" android:letterSpacing="0.16" />
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="TV Kapat" android:textColor="@color/ink" android:textStyle="bold" android:textSize="34sp" />
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Yakındaki TV’ler için güç komutunu gönder." android:textColor="@color/muted" android:textSize="16sp" />
+    <ImageView android:layout_width="72dp" android:layout_height="72dp" android:src="@drawable/ic_vanta" android:contentDescription="VANTA logo" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="VANTA" android:textColor="@color/ink" android:textStyle="bold" android:textSize="34sp" android:letterSpacing="0.12" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="IR UNIVERSAL REMOTE" android:textColor="@color/muted" android:textSize="14sp" android:letterSpacing="0.08" />
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:padding="18dp" android:orientation="vertical" android:background="@color/panel">
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DURUM" android:textColor="@color/muted" android:textStyle="bold" android:textSize="12sp" />
         <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Hazır" android:textColor="@color/ink" android:textSize="17sp" />
